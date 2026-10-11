@@ -79,6 +79,7 @@ export function LandingPage({
         {/* Player Name & Launch Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-md flex flex-col items-stretch gap-4 mb-6">
           <div className="input-wrap">
+            <label htmlFor="playerNameInput" className="sr-only">Player Name</label>
             <input
               type="text"
               id="playerNameInput"

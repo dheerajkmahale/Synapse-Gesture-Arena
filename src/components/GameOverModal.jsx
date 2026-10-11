@@ -13,6 +13,18 @@ export function GameOverModal({
 }) {
   const beatAi = score > AI_BENCHMARK_SCORE;
 
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") {
+        onPlayAgain();
+      } else if (e.key === "Escape") {
+        onExit();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onPlayAgain, onExit]);
+
   return (
     <div className="game-over-overlay" role="dialog" aria-modal="true" aria-label="Game Over">
       <div className="game-over-card animate-pop-in">

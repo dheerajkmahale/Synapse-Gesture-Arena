@@ -37,6 +37,7 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
   const gameStateRef = useRef(gameState);
   const isPausedRef = useRef(isPaused);
   const fistHoldTimerRef = useRef(0);
+  const pauseStartTimeRef = useRef(0);
   const lastTickedSecondRef = useRef(-1);
   const deathModeTriggeredRef = useRef(false);
   const scoreRef = useRef(0);
@@ -49,6 +50,14 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
 
   useEffect(() => {
     isPausedRef.current = isPaused;
+    if (isPaused) {
+      pauseStartTimeRef.current = performance.now();
+    } else if (pauseStartTimeRef.current > 0) {
+      const pausedDuration = performance.now() - pauseStartTimeRef.current;
+      gameStartTimeRef.current += pausedDuration;
+      lastSpawnTimeRef.current += pausedDuration;
+      pauseStartTimeRef.current = 0;
+    }
   }, [isPaused]);
 
   useEffect(() => {
@@ -127,9 +136,11 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
     lastSpawnTimeRef.current = 0;
     gameStartTimeRef.current = 0;
     fistHoldTimerRef.current = 0;
+    pauseStartTimeRef.current = 0;
     lastTickedSecondRef.current = -1;
     deathModeTriggeredRef.current = false;
     timeLeftDisplayRef.current = DEFAULT_GAME_TIME;
+    scoreRef.current = 0;
 
     setScore(0);
     setTimeLeft(DEFAULT_GAME_TIME);
@@ -368,6 +379,7 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
           if (t.y >= paddleY && t.y <= paddleY + 0.06 && Math.abs(t.x - paddleCurrentX) < paddleHalfWidth) {
             const addPoints = t.bonus ? 5 : 1;
             setScore((prev) => prev + addPoints);
+            scoreRef.current += addPoints;
 
             const particleColor = t.bonus ? "270 95% 65%" : "195 100% 55%";
             const popupColor = t.bonus ? "270 95% 65%" : "195 100% 55%";
@@ -462,7 +474,7 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 w-full h-full overflow-hidden grid-bg select-none"
+      className="fixed inset-0 w-full h-full overflow-hidden grid-bg select-none touch-none"
       onPointerMove={handlePointerMove}
       data-testid="arcade-game-container"
     >

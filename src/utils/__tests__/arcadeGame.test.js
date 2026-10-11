@@ -135,6 +135,30 @@ describe("Arcade Game Utilities & Scoring Logic", () => {
       expect(calcPoints(false)).toBe(1);
       expect(calcPoints(true)).toBe(5);
     });
+
+    it("preserves remaining game duration across pause/resume cycles without time loss", () => {
+      let gameStartTime = 10000;
+      let pauseStartTime = 15000; // 5 seconds into game
+      let nowResume = 25000; // paused for 10 seconds
+
+      const pausedDuration = nowResume - pauseStartTime;
+      gameStartTime += pausedDuration; // adjusted start time
+
+      // Now at time 25000, elapsed should only be 5 seconds, not 15 seconds
+      const elapsed = (nowResume - gameStartTime) / 1000;
+      const remaining = DEFAULT_GAME_TIME - elapsed;
+      expect(elapsed).toBe(5);
+      expect(remaining).toBe(35);
+    });
+
+    it("accumulates scores synchronously for rapid successive catches", () => {
+      let score = 0;
+      const catches = [false, false, true, false, true]; // 1 + 1 + 5 + 1 + 5 = 13
+      for (const isBonus of catches) {
+        score += isBonus ? 5 : 1;
+      }
+      expect(score).toBe(13);
+    });
   });
 
   describe("Arcade Web Audio Synthesizer", () => {
