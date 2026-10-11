@@ -1,5 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Hand, Pause, Bot, Volume2, VolumeX, Trophy, Info, ChevronDown, ChevronUp, Gamepad2, Swords, Award } from "lucide-react";
+import {
+  Hand,
+  Pause,
+  Bot,
+  Volume2,
+  VolumeX,
+  Trophy,
+  Info,
+  ChevronDown,
+  ChevronUp,
+  Gamepad2,
+  Swords,
+  Award,
+  Terminal,
+  Play,
+  Zap,
+  Sparkles,
+  Shield,
+  Crosshair
+} from "lucide-react";
 import { getLeaderboard, AI_BENCHMARK_SCORE } from "../utils/leaderboard";
 import { arcadeAudio } from "../utils/arcadeAudio";
 
@@ -33,166 +52,294 @@ export function LandingPage({
   };
 
   return (
-    <section className="landing min-h-screen w-full relative overflow-hidden grid-bg flex flex-col items-center justify-center p-6" aria-label="Synapse Gesture Arena Landing">
-      {/* Top Floating Controls */}
-      <div className="landing-top-bar absolute top-6 right-6 z-20">
-        <button
-          className="arcade-hud-btn"
-          onClick={toggleSound}
-          title={muted ? "Unmute audio" : "Mute audio"}
-          aria-label={muted ? "Unmute audio" : "Mute audio"}
-        >
-          {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-        </button>
-      </div>
+    <section className="arcade-page-wrapper" aria-label="Synapse Gesture Arena Landing">
+      {/* Background Cyber Grid & Ambient Lighting */}
+      <div className="cyber-ambient-glow glow-cyan" aria-hidden="true" />
+      <div className="cyber-ambient-glow glow-violet" aria-hidden="true" />
+      <div className="cyber-grid-canvas" aria-hidden="true" />
+      <div className="cyber-scanlines" aria-hidden="true" />
 
-      {/* Ambient Cyber Light Orbs */}
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-neon-blue/20 blur-3xl" aria-hidden="true" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-neon-purple/20 blur-3xl" aria-hidden="true" />
-
-      {/* Main Content Card */}
-      <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center py-8">
-        {/* Synapse Logo */}
-        <div className="logo-container mb-4">
-          <img
-            src="/assets/logo.png"
-            width={120}
-            height={120}
-            alt="Synapse Gesture Arena Logo"
-            className="drop-shadow-[0_0_30px_hsl(195_100%_55%/0.6)] mx-auto"
-          />
+      {/* Top Navigation HUD Bar */}
+      <header className="arcade-top-nav">
+        <div className="nav-brand-badge">
+          <span className="live-status-dot" />
+          <span className="nav-brand-text">EDGE AI VISION CORE · V1.0</span>
         </div>
-
-        {/* Big Eyebrow & Hero Title */}
-        <div className="font-display font-black text-4xl md:text-6xl text-neon tracking-wide mb-2 animate-pop-in">
-          NO TOUCH GAME 🤖
+        <div className="nav-actions">
+          <button
+            className="arcade-hud-btn"
+            onClick={toggleSound}
+            title={muted ? "Unmute Sound" : "Mute Sound"}
+            aria-label={muted ? "Unmute Sound" : "Mute Sound"}
+          >
+            {muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
+            <span className="hud-btn-label">{muted ? "MUTED" : "AUDIO ON"}</span>
+          </button>
         </div>
+      </header>
 
-        <h1 className="font-display font-bold text-xl md:text-2xl text-neon-purple tracking-[0.3em] mb-3">
-          SYNAPSE GESTURE ARENA
-        </h1>
-
-        <p className="text-muted-foreground text-base md:text-lg mb-8 max-w-lg">
-          Play without touching. <span className="text-neon font-bold">Beat the AI.</span>
-        </p>
-
-        {/* Player Name & Launch Form */}
-        <form onSubmit={handleSubmit} className="w-full max-w-md flex flex-col items-stretch gap-4 mb-6">
-          <div className="input-wrap">
-            <label htmlFor="playerNameInput" className="sr-only">Player Name</label>
-            <input
-              type="text"
-              id="playerNameInput"
-              maxLength={16}
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Enter your name"
-              autoComplete="off"
-              className="w-full px-5 py-4 text-center text-xl font-display tracking-widest bg-card/70 border border-border rounded-xl text-foreground outline-none focus:border-neon-blue focus:glow-blue transition"
+      {/* Main Content Area */}
+      <div className="arcade-main-container">
+        {/* Hero Branding Section */}
+        <div className="arcade-hero-header">
+          {/* Logo Hologram Container */}
+          <div className="arcade-logo-halo">
+            <div className="logo-ring-pulse" />
+            <img
+              src="/assets/logo.png"
+              width={100}
+              height={100}
+              alt="Synapse AI Logo"
+              className="arcade-logo-img"
             />
           </div>
 
-          {/* Mode Switcher */}
-          <div className="flex items-center justify-center gap-3">
-            <button
-              type="button"
-              className={`mode-pill ${gameMode === "arcade" ? "active" : ""}`}
-              onClick={() => setGameMode("arcade")}
-            >
-              <Gamepad2 size={15} /> Arcade Pulse (Official)
-            </button>
-            <button
-              type="button"
-              className={`mode-pill ${gameMode === "duel" ? "active" : ""}`}
-              onClick={() => setGameMode("duel")}
-            >
-              <Swords size={15} /> Cyber Duel (RPS)
-            </button>
+          {/* Eyebrow Status */}
+          <div className="arcade-eyebrow">
+            <Sparkles size={13} className="text-neon-cyan" />
+            <span>TOUCHLESS COMPUTER VISION ARENA</span>
+            <Sparkles size={13} className="text-neon-cyan" />
           </div>
 
-          {/* Start Button */}
-          <button
-            type="submit"
-            disabled={!playerName || !playerName.trim()}
-            className="w-full px-10 py-4 font-display font-black tracking-widest text-xl bg-gradient-neon text-primary-foreground rounded-xl glow-blue hover:scale-105 transition-transform disabled:opacity-40 disabled:hover:scale-100 animate-pulse-glow"
-          >
-            START GAME ▶
-          </button>
-        </form>
+          {/* Cinematic Title */}
+          <h1 className="arcade-title">
+            <span className="title-cyan">SYNAPSE</span>
+            <span className="title-purple">GESTURE ARENA</span>
+          </h1>
 
-        {/* Quick Rules Pills */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm max-w-lg w-full mb-6">
-          <div className="rule-pill">
-            <Hand size={16} className="text-neon" />
-            <span>🖐 Open palm = play</span>
+          <p className="arcade-subtitle">
+            Zero touch. Pure reflex. <span className="highlight-text">Outplay the AI.</span>
+          </p>
+        </div>
+
+        {/* Operator Launch Deck */}
+        <div className="arcade-terminal-deck">
+          <div className="deck-corner-bracket top-left" aria-hidden="true" />
+          <div className="deck-corner-bracket top-right" aria-hidden="true" />
+          <div className="deck-corner-bracket bottom-left" aria-hidden="true" />
+          <div className="deck-corner-bracket bottom-right" aria-hidden="true" />
+
+          <form onSubmit={handleSubmit} className="arcade-launch-form">
+            {/* Input Section */}
+            <div className="callsign-section">
+              <div className="callsign-header">
+                <label htmlFor="playerNameInput" className="callsign-label">
+                  <Terminal size={15} className="text-neon-cyan" />
+                  <span>OPERATOR CALLSIGN</span>
+                </label>
+                <span className="callsign-char-limit">MAX 16 CHARS</span>
+              </div>
+
+              <div className="callsign-input-wrapper">
+                <input
+                  type="text"
+                  id="playerNameInput"
+                  maxLength={16}
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  placeholder="ENTER CALLSIGN (E.G. CYBERPILOT)"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="player-callsign-input"
+                  aria-label="Operator Callsign"
+                />
+              </div>
+
+              {(!playerName || !playerName.trim()) && (
+                <div className="callsign-tip">
+                  <span className="pulse-prompt">▶</span> Type your callsign above to activate the launch sequence
+                </div>
+              )}
+            </div>
+
+            {/* Mode Selection Cards */}
+            <div className="mode-selection-deck">
+              <div className="mode-deck-label">SELECT MISSION MODE:</div>
+              <div className="mode-cards-grid">
+                <button
+                  type="button"
+                  className={`mode-card ${gameMode === "arcade" ? "active" : ""}`}
+                  onClick={() => setGameMode("arcade")}
+                  aria-pressed={gameMode === "arcade"}
+                >
+                  <div className="mode-card-header">
+                    <Crosshair size={18} className="mode-card-icon" />
+                    <span className="mode-card-title">Arcade Pulse</span>
+                    {gameMode === "arcade" && <span className="mode-active-pill">ACTIVE</span>}
+                  </div>
+                  <p className="mode-card-desc">
+                    Catch falling cyan & purple pulses. Survive final 10s DEATH MODE.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  className={`mode-card ${gameMode === "duel" ? "active" : ""}`}
+                  onClick={() => setGameMode("duel")}
+                  aria-pressed={gameMode === "duel"}
+                >
+                  <div className="mode-card-header">
+                    <Swords size={18} className="mode-card-icon" />
+                    <span className="mode-card-title">Cyber Duel (RPS)</span>
+                    {gameMode === "duel" && <span className="mode-active-pill">ACTIVE</span>}
+                  </div>
+                  <p className="mode-card-desc">
+                    Real-time Rock-Paper-Scissors neural showdown against the AI bot.
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            {/* Primary Launch CTA Button */}
+            <button
+              type="submit"
+              disabled={!playerName || !playerName.trim()}
+              className="arcade-deploy-btn"
+              aria-label="Deploy to Arena"
+            >
+              <span className="btn-ambient-glow" />
+              <span className="btn-content">
+                <Play size={20} className="fill-current" />
+                <span>DEPLOY TO ARENA</span>
+              </span>
+            </button>
+          </form>
+        </div>
+
+        {/* Gesture Telemetry HUD Cards */}
+        <div className="telemetry-deck">
+          <div className="telemetry-card">
+            <div className="telemetry-icon-box cyan">
+              <Hand size={20} />
+            </div>
+            <div className="telemetry-content">
+              <div className="telemetry-label">STEER & RESUME</div>
+              <div className="telemetry-val">🖐 Open Palm / Index Finger</div>
+              <div className="telemetry-sub">Follows index tip · Open palm unfreezes</div>
+            </div>
           </div>
-          <div className="rule-pill">
-            <Pause size={16} className="text-neon-purple" />
-            <span>✊ Fist = pause</span>
+
+          <div className="telemetry-card">
+            <div className="telemetry-icon-box purple">
+              <Pause size={20} />
+            </div>
+            <div className="telemetry-content">
+              <div className="telemetry-label">HOLD TO PAUSE</div>
+              <div className="telemetry-val">✊ Clenched Fist</div>
+              <div className="telemetry-sub">Hold for 0.4s to freeze arena time</div>
+            </div>
           </div>
-          <div className="rule-pill">
-            <Bot size={16} className="text-gold-accent" />
-            <span>🤖 AI score: {AI_BENCHMARK_SCORE}</span>
+
+          <div className="telemetry-card">
+            <div className="telemetry-icon-box gold">
+              <Bot size={20} />
+            </div>
+            <div className="telemetry-content">
+              <div className="telemetry-label">AI BENCHMARK</div>
+              <div className="telemetry-val">🤖 {AI_BENCHMARK_SCORE} Points</div>
+              <div className="telemetry-sub">Beat 35 to earn AI SLAYER title</div>
+            </div>
           </div>
         </div>
 
-        {/* How Does It Work Accordion Toggle */}
-        <button
-          onClick={() => setShowExplainer((prev) => !prev)}
-          className="text-muted-foreground hover:text-neon underline underline-offset-4 transition text-sm flex items-center gap-1.5 mb-6"
-        >
-          <Info size={15} />
-          {showExplainer ? "Hide details" : "How does it work?"}
-          {showExplainer ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </button>
-
-        {/* Expandable Info Section for Judges */}
-        {showExplainer && (
-          <div className="max-w-xl w-full text-left bg-card/80 border border-border rounded-xl p-6 mb-8 animate-pop-in">
-            <div className="font-display tracking-widest text-neon-purple text-xs font-bold mb-2">
-              FOR JUDGES & VISITORS
+        {/* Tournament Leaderboard Card */}
+        <div className="arcade-leaderboard-card">
+          <div className="leaderboard-card-header">
+            <div className="header-title-wrap">
+              <Trophy size={18} className="text-gold-accent" />
+              <h2 className="leaderboard-card-title">HALL OF FAME · TOP OPERATORS</h2>
             </div>
-            <p className="text-sm text-foreground/90 leading-relaxed">
-              This system uses <strong className="text-neon">AI computer vision</strong> to track your hand and convert
-              gestures into controls in real time. We detect 21 hand landmarks per frame and follow your index fingertip
-              to steer the basket — no controller, no physical touch.
-            </p>
-            <ul className="mt-3 text-xs text-muted-foreground space-y-1.5 list-disc pl-5">
-              <li>Real-world uses: touchless kiosks, sterile health environments, AR/VR, and accessibility.</li>
-              <li>Powered by Google MediaPipe Vision running 100% locally in your browser.</li>
-              <li>Zero latency edge inference, no video or biometric data leaves your machine.</li>
-              <li>Built by the Synapse Student AI Club.</li>
-            </ul>
+            <span className="leaderboard-sub-pill">LOCAL PERSISTENT</span>
           </div>
-        )}
 
-        {/* Top 5 Leaderboard Display */}
-        {leaderboard.length > 0 && (
-          <div className="w-full max-w-md bg-card/60 border border-border rounded-xl p-5 mb-6">
-            <div className="font-display tracking-widest text-xs text-muted-foreground mb-3 flex items-center justify-center gap-2">
-              <Award size={15} className="text-gold-accent" /> TOP 5 LEADERBOARD
+          <ul className="leaderboard-card-list">
+            {leaderboard.length === 0 ? (
+              <li className="leaderboard-empty-row">
+                <span className="empty-icon">🛡️</span>
+                <span>No mission records yet. Enter your callsign and claim #1!</span>
+              </li>
+            ) : (
+              leaderboard.map((item, idx) => {
+                const isChampion = idx === 0;
+                const isPodium = idx <= 2;
+                return (
+                  <li
+                    key={`landing-lb-${idx}-${item.score}`}
+                    className={`leaderboard-card-row ${isChampion ? "rank-champion" : isPodium ? "rank-podium" : ""}`}
+                  >
+                    <div className="row-left">
+                      <span className={`rank-tag rank-${idx + 1}`}>
+                        {idx === 0 ? "👑 #1" : idx === 1 ? "🥈 #2" : idx === 2 ? "🥉 #3" : `#${idx + 1}`}
+                      </span>
+                      <span className="operator-name">{item.name}</span>
+                    </div>
+                    <div className="row-right">
+                      <span className="operator-score">{item.score}</span>
+                      <span className="score-units">PTS</span>
+                    </div>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+        </div>
+
+        {/* Technical Architecture Dossier (Collapsible) */}
+        <div className="arcade-dossier-wrapper">
+          <button
+            onClick={() => setShowExplainer((prev) => !prev)}
+            className="dossier-toggle-btn"
+            aria-expanded={showExplainer}
+          >
+            <Info size={16} className="text-neon-cyan" />
+            <span>TECHNICAL ARCHITECTURE & JUDGE BRIEFING</span>
+            {showExplainer ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+
+          {showExplainer && (
+            <div className="arcade-dossier-content animate-pop-in">
+              <div className="dossier-badge-row">
+                <span className="tech-badge cyan">MediaPipe Tasks 0.10.x</span>
+                <span className="tech-badge violet">WASM SIMD Acceleration</span>
+                <span className="tech-badge gold">WebGL GPU Delegate</span>
+                <span className="tech-badge green">100% Client-Side Privacy</span>
+              </div>
+
+              <p className="dossier-text">
+                Synapse Gesture Arena processes video streams at <strong>60 FPS</strong> using an in-browser neural landmarker.
+                By detecting <strong>21 3D joint landmarks</strong> per frame and applying adaptive exponential moving average (EMA)
+                jitter filtering, the system steers the basket with zero perceived latency.
+              </p>
+
+              <div className="dossier-features-grid">
+                <div className="feature-block">
+                  <Shield size={16} className="text-neon-cyan" />
+                  <div>
+                    <strong>Edge Privacy Guarantee</strong>
+                    <p>All inference executes in browser memory. No camera frames or biometrics ever touch a server.</p>
+                  </div>
+                </div>
+                <div className="feature-block">
+                  <Zap size={16} className="text-neon-purple" />
+                  <div>
+                    <strong>WASM Offline Binaries</strong>
+                    <p>Bundled local WebAssembly binaries ensure rapid startup with automatic CDN resilience fallback.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <ul className="space-y-2">
-              {leaderboard.map((item, idx) => (
-                <li
-                  key={`landing-lb-${idx}`}
-                  className={`flex items-center justify-between font-display text-base px-3 py-2 rounded-lg ${
-                    idx === 0 ? "bg-gradient-neon text-primary-foreground font-bold" : "bg-muted/40"
-                  }`}
-                >
-                  <span>
-                    {idx === 0 ? "👑" : `#${idx + 1}`} {item.name}
-                  </span>
-                  <span className="font-black">{item.score}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Footer */}
-        <footer className="text-xs text-muted-foreground tracking-widest font-display">
-          A SYNAPSE AI CLUB EXPERIENCE · ZERO-TOUCH INTERFACE
+        <footer className="arcade-footer">
+          <div className="footer-line">
+            <span>SYNAPSE AI CLUB</span>
+            <span className="footer-dot">·</span>
+            <span>DATA SCIENCE & AGENTIC AI</span>
+            <span className="footer-dot">·</span>
+            <span>TOUCHLESS INTERFACE EXPERIENCE</span>
+          </div>
         </footer>
       </div>
     </section>

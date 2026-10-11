@@ -1,5 +1,5 @@
-import React from "react";
-import { RotateCcw, Home, Trophy, Award, Bot, Sparkles } from "lucide-react";
+import React, { useEffect } from "react";
+import { RotateCcw, Home, Trophy, Award, Bot, Sparkles, ShieldCheck } from "lucide-react";
 import { AI_BENCHMARK_SCORE } from "../utils/leaderboard";
 
 export function GameOverModal({
@@ -13,7 +13,7 @@ export function GameOverModal({
 }) {
   const beatAi = score > AI_BENCHMARK_SCORE;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Enter") {
         onPlayAgain();
@@ -26,59 +26,103 @@ export function GameOverModal({
   }, [onPlayAgain, onExit]);
 
   return (
-    <div className="game-over-overlay" role="dialog" aria-modal="true" aria-label="Game Over">
+    <div className="game-over-overlay" role="dialog" aria-modal="true" aria-label="Game Over Terminal">
       <div className="game-over-card animate-pop-in">
+        {/* Cyber Corner HUD Brackets */}
+        <div className="deck-corner-bracket top-left" aria-hidden="true" />
+        <div className="deck-corner-bracket top-right" aria-hidden="true" />
+        <div className="deck-corner-bracket bottom-left" aria-hidden="true" />
+        <div className="deck-corner-bracket bottom-right" aria-hidden="true" />
+
+        {/* Header Section */}
         <div className="game-over-header">
-          <span className="game-over-eyebrow">MISSION COMPLETE</span>
-          <h2 className="game-over-score">{score}</h2>
-          <div className="rank-badge">{rankTitle}</div>
+          <div className="mission-status-pill">
+            <span className="live-status-dot" />
+            <span>MISSION DEBRIEF · OPERATOR: {playerName.toUpperCase()}</span>
+          </div>
+
+          <h2 className="game-over-score" data-testid="final-score-display">
+            {score}
+          </h2>
+          <div className="score-unit-label">FINAL ENERGY SCORE</div>
+
+          <div className="rank-badge-pill">
+            <Sparkles size={14} className="text-neon-cyan" />
+            <span>{rankTitle}</span>
+            <Sparkles size={14} className="text-neon-cyan" />
+          </div>
 
           {isHighScore && (
             <div className="new-high-score-banner animate-pulse">
-              <Trophy size={18} /> NEW HIGH SCORE!
+              <Trophy size={18} className="trophy-bounce" />
+              <span>NEW PERSONAL BEST LOGGED!</span>
             </div>
           )}
 
-          <p className="ai-comparison-text">
+          <div className="ai-comparison-banner">
             {beatAi ? (
-              <span className="text-neon">You beat the AI ({AI_BENCHMARK_SCORE}) 🤖</span>
+              <div className="victory-chip">
+                <ShieldCheck size={16} />
+                <span>AI BENCHMARK DEFEATED ({AI_BENCHMARK_SCORE} PTS) 🤖</span>
+              </div>
             ) : (
-              <span className="text-muted">AI scored {AI_BENCHMARK_SCORE}. Can you beat it?</span>
+              <div className="defeat-chip">
+                <Bot size={16} />
+                <span>AI BENCHMARK WAS {AI_BENCHMARK_SCORE} PTS. RETRY TO CONQUER!</span>
+              </div>
             )}
-          </p>
+          </div>
         </div>
 
-        {/* Top 5 Leaderboard */}
+        {/* Top 5 Leaderboard Breakdown */}
         <div className="leaderboard-box">
-          <div className="leaderboard-title">
-            <Award size={15} /> TOP 5 LEADERBOARD
+          <div className="leaderboard-box-header">
+            <Award size={16} className="text-gold-accent" />
+            <span>TOP 5 OPERATORS LEADERBOARD</span>
           </div>
           <ul className="leaderboard-list">
             {leaderboard.length === 0 ? (
-              <li className="empty-leaderboard">No records logged yet.</li>
+              <li className="empty-leaderboard">No operator scores recorded.</li>
             ) : (
-              leaderboard.map((item, idx) => (
-                <li
-                  key={`lb-${idx}-${item.score}`}
-                  className={`leaderboard-item ${idx === 0 ? "top-rank" : ""}`}
-                >
-                  <span className="player-rank">
-                    {idx === 0 ? "👑" : `#${idx + 1}`} {item.name}
-                  </span>
-                  <span className="player-score">{item.score}</span>
-                </li>
-              ))
+              leaderboard.map((item, idx) => {
+                const isChampion = idx === 0;
+                return (
+                  <li
+                    key={`lb-${idx}-${item.score}`}
+                    className={`leaderboard-item ${isChampion ? "top-rank" : ""}`}
+                  >
+                    <span className="player-rank">
+                      {idx === 0 ? "👑 #1" : idx === 1 ? "🥈 #2" : idx === 2 ? "🥉 #3" : `#${idx + 1}`} {item.name}
+                    </span>
+                    <span className="player-score">{item.score} <small>PTS</small></span>
+                  </li>
+                );
+              })
             )}
           </ul>
         </div>
 
-        {/* Actions */}
+        {/* Actions Deck */}
         <div className="game-over-actions">
-          <button className="primary-button play-again-btn" onClick={onPlayAgain}>
-            <RotateCcw size={18} /> PLAY AGAIN
+          <button
+            className="arcade-deploy-btn play-again-btn"
+            onClick={onPlayAgain}
+            title="Press Enter to play again"
+          >
+            <span className="btn-content">
+              <RotateCcw size={18} />
+              <span>PLAY AGAIN</span>
+              <kbd className="key-hint">ENTER</kbd>
+            </span>
           </button>
-          <button className="secondary-button exit-home-btn" onClick={onExit}>
-            <Home size={16} /> RETURN HOME
+          <button
+            className="secondary-cyber-btn exit-home-btn"
+            onClick={onExit}
+            title="Press Escape to return home"
+          >
+            <Home size={16} />
+            <span>RETURN HOME</span>
+            <kbd className="key-hint">ESC</kbd>
           </button>
         </div>
       </div>

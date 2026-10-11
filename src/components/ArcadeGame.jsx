@@ -474,7 +474,7 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 w-full h-full overflow-hidden grid-bg select-none touch-none"
+      className="fixed inset-0 w-full h-full overflow-hidden arcade-arena-viewport select-none touch-none"
       onPointerMove={handlePointerMove}
       data-testid="arcade-game-container"
     >
@@ -485,31 +485,33 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
       {/* Death Mode Pulsating Screen Tint */}
-      {isDeathMode && <div className="absolute inset-0 pointer-events-none animate-death-pulse" />}
+      {isDeathMode && <div className="absolute inset-0 pointer-events-none arcade-death-vignette" />}
 
       {/* Cyberpunk Top HUD */}
-      <div className="absolute top-0 left-0 right-0 flex items-start justify-between p-6 pointer-events-none z-20">
-        {/* Left: Score HUD */}
-        <div>
-          <div className="text-xs text-muted-foreground font-display tracking-widest">SCORE</div>
+      <header className="arcade-game-hud" aria-label="Game HUD">
+        {/* Left: Score HUD Panel */}
+        <div className="hud-panel left-panel">
+          <div className="hud-metric-label">SCORE</div>
           <div
-            className={`font-display font-black text-6xl ${isDeathMode ? "text-neon-red" : "text-neon"}`}
+            className={`hud-metric-value ${isDeathMode ? "danger-mode" : "cyan-mode"}`}
             data-testid="game-score-display"
           >
             {String(score).padStart(2, "0")}
           </div>
-          <div className="text-xs text-muted-foreground mt-1">
-            AI: {AI_BENCHMARK_SCORE} 🤖 · {playerName}
+          <div className="hud-sub-metric">
+            <span className="pilot-name">{playerName}</span>
+            <span className="ai-target-tag">AI: {AI_BENCHMARK_SCORE} 🤖</span>
           </div>
         </div>
 
         {/* Center: Synapse Branding & Quick Controls */}
-        <div className="flex flex-col items-center gap-1.5 pointer-events-auto">
-          <div className="flex items-center gap-2.5">
-            <img src="/assets/logo.png" width={42} height={42} alt="Synapse logo" className="opacity-90" />
-            <div className="font-display text-sm tracking-widest text-neon-purple font-bold">SYNAPSE</div>
+        <div className="hud-center-deck">
+          <div className="hud-brand-chip">
+            <img src="/assets/logo.png" width={28} height={28} alt="Synapse logo" className="hud-logo-mini" />
+            <span className="hud-brand-text">SYNAPSE</span>
+            <span className="live-status-dot" />
           </div>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="hud-controls-pill">
             <button
               className="arcade-hud-btn"
               onClick={() => setMuted((prev) => !prev)}
@@ -529,7 +531,7 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
               </button>
             )}
             <button
-              className="arcade-hud-btn"
+              className="arcade-hud-btn exit-btn"
               onClick={onExit}
               title="Return to Main Menu"
               aria-label="Return to Main Menu"
@@ -540,68 +542,97 @@ export function ArcadeGame({ playerName = "Player", onExit, initialMuted = false
         </div>
 
         {/* Right: Timer & Death Mode */}
-        <div className="text-right">
-          <div className="text-xs text-muted-foreground font-display tracking-widest">TIME</div>
+        <div className="hud-panel right-panel">
+          <div className="hud-metric-label">TIME REMAINING</div>
           <div
-            className={`font-display font-black text-6xl ${
-              isDeathMode ? "text-neon-red animate-pulse" : "text-neon-purple"
+            className={`hud-metric-value ${
+              isDeathMode ? "danger-mode animate-pulse" : "purple-mode"
             }`}
             data-testid="game-time-display"
           >
             {String(timeLeft).padStart(2, "0")}
           </div>
-          {isDeathMode && (
-            <div className="font-display font-bold text-neon-red mt-1 animate-pulse" data-testid="death-mode-badge">
-              DEATH MODE 🔥
+          {isDeathMode ? (
+            <div className="death-mode-alert-badge" data-testid="death-mode-badge">
+              <span className="alert-blink-dot" /> DEATH MODE 🔥
+            </div>
+          ) : (
+            <div className="hud-sub-metric">
+              <span className="match-clock-tag">40S ARENA</span>
             </div>
           )}
         </div>
-      </div>
+      </header>
 
-      {/* Bottom Status Bar */}
-      <div className="absolute bottom-3 left-0 right-0 text-center text-xs text-muted-foreground pointer-events-none px-4 z-20">
-        {error ? (
-          <span className="text-neon-red">⚠ {error} (Mouse tracking active)</span>
-        ) : ready ? (
-          present ? (
-            <span>
-              AI is tracking your hand in real time… <strong className="text-neon">✊ Fist = pause</strong> ·{" "}
-              <strong className="text-neon">🖐 Open palm = resume</strong>
-            </span>
+      {/* Bottom Telemetry Status Bar */}
+      <footer className="arcade-status-ticker" aria-live="polite">
+        <div className="ticker-capsule">
+          {error ? (
+            <span className="ticker-alert-error">⚠ {error} — Mouse drag controls active</span>
+          ) : ready ? (
+            present ? (
+              <span className="ticker-active">
+                <span className="live-status-dot" /> Tracking active · <strong className="text-neon-cyan">✊ Fist = pause</strong> · <strong className="text-neon-cyan">🖐 Open palm = resume</strong>
+              </span>
+            ) : (
+              <span className="ticker-waiting">✋ Show hand to camera or drag with mouse to steer basket</span>
+            )
           ) : (
-            <span>✋ Show your hand or drag with mouse to control basket</span>
-          )
-        ) : (
-          <span>Loading AI vision model…</span>
-        )}
-      </div>
+            <span className="ticker-loading">⚡ Initializing MediaPipe AI Vision neural model…</span>
+          )}
+        </div>
+      </footer>
 
       {/* Countdown Overlay */}
       {gameState === "countdown" && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm z-30 pointer-events-none">
-          <div className="text-center">
-            <div className="text-muted-foreground font-display tracking-widest mb-4">
+        <div className="arcade-countdown-backdrop">
+          <div className="countdown-card animate-pop-in" key={countdown}>
+            <div className="countdown-eyebrow">
               GET READY, {playerName.toUpperCase()}
             </div>
-            <div className="text-[12rem] font-display font-black text-neon leading-none animate-pop-in" key={countdown}>
+            <div className="countdown-number">
               {countdown > 0 ? countdown : "GO!"}
             </div>
+            <div className="countdown-hint">STEER BASKET WITH INDEX FINGERTIP</div>
           </div>
         </div>
       )}
 
       {/* Paused Overlay */}
       {isPaused && gameState === "playing" && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm pointer-events-auto z-40">
-          <div className="text-center p-8 bg-card/80 border border-border rounded-2xl">
-            <div className="text-6xl font-display font-black text-neon-purple mb-4">PAUSED</div>
-            <div className="text-muted-foreground mb-6">Open your palm or click below to resume</div>
-            <button
-              className="px-8 py-3 bg-gradient-neon text-primary-foreground font-display font-bold tracking-widest rounded-xl hover:scale-105 transition"
-              onClick={() => setIsPaused(false)}
-            >
-              RESUME GAME ▶
-            </button>
+        <div className="arcade-pause-backdrop">
+          <div className="arcade-pause-card animate-pop-in">
+            <div className="deck-corner-bracket top-left" aria-hidden="true" />
+            <div className="deck-corner-bracket top-right" aria-hidden="true" />
+            <div className="deck-corner-bracket bottom-left" aria-hidden="true" />
+            <div className="deck-corner-bracket bottom-right" aria-hidden="true" />
+
+            <div className="pause-icon-halo">
+              <Pause size={30} className="text-neon-cyan" />
+            </div>
+            <h2 className="pause-title">TACTICAL PAUSE</h2>
+            <p className="pause-instructions">
+              Open your palm toward camera or click below to resume
+            </p>
+
+            <div className="pause-actions-deck">
+              <button
+                className="arcade-deploy-btn pause-resume-btn"
+                onClick={() => setIsPaused(false)}
+              >
+                <span className="btn-content">
+                  <Play size={18} className="fill-current" />
+                  <span>RESUME ARENA</span>
+                </span>
+              </button>
+              <button
+                className="secondary-cyber-btn"
+                onClick={onExit}
+              >
+                <LogOut size={16} />
+                <span>ABANDON MATCH</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
